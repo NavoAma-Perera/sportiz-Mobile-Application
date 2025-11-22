@@ -2,7 +2,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, StatusBar, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { RootState } from '../types';
+import { Colors } from '../constants/colors';
 
 interface HeaderProps {
   title: string;
@@ -11,6 +13,8 @@ interface HeaderProps {
 
 export default function Header({ title, subtitle }: HeaderProps) {
   const user = useSelector((state: RootState) => state.auth.user);
+  const isDark = useSelector((state: RootState) => state.favourites.isDark);
+  const theme = Colors(isDark);
 
   const getFirstName = (name?: string | null, email?: string) => {
     if (name) return name.split(' ')[0];
@@ -20,87 +24,74 @@ export default function Header({ title, subtitle }: HeaderProps) {
   const firstName = getFirstName(user?.name, user?.email);
 
   return (
-    <View style={styles.container}>
-      {/* This makes header go behind status bar + full width */}
+    <>
       <StatusBar 
-        backgroundColor="#8b5cf6" 
-        barStyle="light-content" 
-        translucent={true} 
+        backgroundColor={isDark ? '#6366f1' : theme.primary}
+        barStyle="light-content"
       />
-
-      <View style={styles.content}>
-        <View style={styles.leftContent}>
-          <Text style={styles.title}>{title}</Text>
-          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-        </View>
-
-        <View style={styles.userBadge}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{firstName.charAt(0).toUpperCase()}</Text>
+      <LinearGradient
+        colors={isDark ? ['#6366f1', '#8b5cf6'] : [theme.primary, '#6366f1']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.container, { paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 30 : 50 }]}
+      >
+        <View style={styles.content}>
+          <View style={styles.leftContent}>
+            <Text style={styles.title}>{title}</Text>
+            {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
           </View>
-          <Text style={styles.userName}>{firstName}</Text>
+
+          <View style={styles.greetingSection}>
+            <Text style={styles.greetingText}>Hey,</Text>
+            <Text style={styles.userName}>{firstName}</Text>
+          </View>
         </View>
-      </View>
-    </View>
+      </LinearGradient>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#8b5cf6',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight || 30 : 50,
     paddingHorizontal: 20,
     paddingBottom: 20,
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
-    width: '100%',           // Full width
-    alignSelf: 'stretch',    // Ensures it takes full width
+    width: '100%',
+    alignSelf: 'stretch',
   },
   content: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  leftContent: { flex: 1 },
+  leftContent: { 
+    flex: 1,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '800',
     color: '#fff',
     letterSpacing: 0.5,
   },
   subtitle: {
     fontSize: 13,
-    color: 'rgba(255,255,255,0.9)',
+    color: 'rgba(255,255,255,0.85)',
     fontWeight: '500',
     marginTop: 4,
   },
-  userBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    borderRadius: 16,
+  greetingSection: {
+    alignItems: 'flex-end',
   },
-  avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.4)',
-  },
-  avatarText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fff',
+  greetingText: {
+    fontSize: 18,
+    color: 'rgba(255,255,255,0.8)',
+    fontWeight: '500',
+    marginBottom: 2,
   },
   userName: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 20,
+    fontWeight: '700',
     color: '#fff',
   },
 });

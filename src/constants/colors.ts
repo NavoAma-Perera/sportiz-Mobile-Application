@@ -14,17 +14,17 @@ const Light = {
 };
 
 const Dark = {
-  primary: '#818cf8',
-  primaryLight: '#a78bfa',
-  accent: '#f472b6',
+  primary: '#a78bfa',     
+  primaryLight: '#c4b5fd', 
+  accent: '#f472b6',      
   background: '#0f172a',
   surface: '#1e293b',
   text: '#ffffff',
-  textSecondary: '#cbd5e1',
+  textSecondary: '#94a3b8', 
   border: '#334155',
-  cardBg: 'rgba(30, 41, 59, 0.7)',
-  glassBg: 'rgba(15, 23, 42, 0.8)',
-  inputBg: 'rgba(255,255,255,0.1)',
+  cardBg: 'rgba(30, 41, 59, 0.85)',
+  glassBg: 'rgba(15, 23, 42, 0.9)',
+  inputBg: 'rgba(255,255,255,0.12)', 
 };
 
 export const Colors = (isDark: boolean) => (isDark ? Dark : Light);

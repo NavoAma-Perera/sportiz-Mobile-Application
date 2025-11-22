@@ -9,10 +9,9 @@ import {
   StyleSheet,
   Share,
   Alert,
-  Platform,
-  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Feather } from '@expo/vector-icons';
 import * as Calendar from 'expo-calendar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -90,42 +89,37 @@ export default function DetailsScreen({ route, navigation }: { route: any; navig
     navigation.setOptions({
       title: 'Match Details',
       headerShown: true,
+      headerStyle: {
+        backgroundColor: isDark ? '#0f172a' : '#ffffff',
+      },
+      headerTitleStyle: {
+        color: isDark ? '#ffffff' : '#000000',
+        fontSize: 18,
+        fontWeight: '700',
+      },
+      headerTintColor: isDark ? '#ffffff' : '#000000',
       headerBackTitleVisible: false,
     });
-  }, [navigation]);
+  }, [navigation, isDark]);
 
   return (
-    <View style={{ flex: 1 }}>
-      {isDark ? (
-        <LinearGradient colors={['#6366f1', '#8b5cf6', '#ec4899']} style={{ flex: 1 }}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <DetailContent 
-              item={item} 
-              isFav={isFav} 
-              theme={theme} 
-              onToggleFav={onToggleFav} 
-              onShare={onShare}
-              onAddToCalendar={onAddToCalendar}
-            />
-          </ScrollView>
-        </LinearGradient>
-      ) : (
-        <ScrollView style={{ flex: 1, backgroundColor: theme.background }} showsVerticalScrollIndicator={false}>
-          <DetailContent 
-            item={item} 
-            isFav={isFav} 
-            theme={theme} 
-            onToggleFav={onToggleFav} 
-            onShare={onShare}
-            onAddToCalendar={onAddToCalendar}
-          />
-        </ScrollView>
-      )}
+    <View style={[styles.container, { backgroundColor: isDark ? '#0f172a' : theme.background }]}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <DetailContent 
+          item={item} 
+          isFav={isFav} 
+          theme={theme} 
+          onToggleFav={onToggleFav} 
+          onShare={onShare}
+          onAddToCalendar={onAddToCalendar}
+          isDark={isDark}
+        />
+      </ScrollView>
     </View>
   );
 }
 
-function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalendar }: any) {
+function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalendar, isDark }: any) {
   return (
     <>
       {/* Hero Image */}
@@ -133,7 +127,7 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalend
         <ImageBackground source={{ uri: item.image }} style={styles.hero} resizeMode="cover">
           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.heroGradient}>
             <View style={styles.heroContent}>
-              
+             
             </View>
           </LinearGradient>
         </ImageBackground>
@@ -145,7 +139,7 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalend
           <Feather
             name="heart"
             size={28}
-            color={isFav ? '#ec4899' : '#020202ff'}
+            color={isFav ? '#ec4899' : '#818cf8'}
             fill={isFav ? '#ec4899' : 'none'}
             strokeWidth={2}
           />
@@ -158,92 +152,97 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalend
         </TouchableOpacity>
       </View>
 
-      {/* Main Content Card */}
-      <View style={[styles.contentCard, { backgroundColor: theme.surface }]}>
-        {/* Competition Name */}
-        <Text style={[styles.competitionLabel, { color: theme.primary }]}>
-          {item.league || 'International Match'}
-        </Text>
-
-        {/* Category */}
-        <View style={styles.categorySection}>
-          <Text style={[styles.label, { color: theme.textSecondary }]}>Category</Text>
-          <Text style={[styles.value, { color: theme.text }]}>
-             {item.sport}
+      {/* Main Content Card - Glassmorphism */}
+      <BlurView intensity={isDark ? 40 : 20} style={styles.blurContainer}>
+        <View style={[styles.contentCard, isDark ? styles.glassCardDark : styles.glassCardLight]}>
+          {/* Competition Name */}
+          <Text style={[styles.competitionLabel, { color: theme.primary }]}>
+            {item.league || 'International Match'}
           </Text>
-        </View>
 
-        {/* Teams */}
-        <View style={styles.teamsSection}>
-          <Text style={[styles.teamName, { color: theme.text }]}>{item.teamA}</Text>
-          <View style={[styles.vsContainer, { backgroundColor: theme.primary + '20' }]}>
-            <Text style={[styles.vsText, { color: theme.primary }]}>VS</Text>
-          </View>
-          <Text style={[styles.teamName, { color: theme.text }]}>{item.teamB}</Text>
-        </View>
-
-        {/* Venue */}
-        <View style={styles.infoRow}>
-          <Feather name="map-pin" size={18} color={theme.primary} />
-          <View style={styles.infoContent}>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Venue</Text>
-            <Text style={[styles.value, { color: theme.text }]}>TBA</Text>
-          </View>
-        </View>
-
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
-        {/* Date & Time Row */}
-        <View style={styles.dateTimeRow}>
-          <View style={styles.dateSection}>
-            <View style={[styles.iconCircle, { backgroundColor: theme.primary + '20' }]}>
-              <Feather name="calendar" size={20} color={theme.primary} />
-            </View>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Date</Text>
+          {/* Category */}
+          <View style={styles.categorySection}>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>Category</Text>
             <Text style={[styles.value, { color: theme.text }]}>
-              {new Date(item.date).toLocaleDateString('en-GB', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-              })}
+              {item.sport}
             </Text>
           </View>
 
-          <View style={styles.timeSection}>
-            <View style={[styles.iconCircle, { backgroundColor: theme.accent + '20' }]}>
-              <Feather name="clock" size={20} color={theme.accent} />
+          {/* Teams */}
+          <View style={styles.teamsSection}>
+            <Text style={[styles.teamName, { color: theme.text }]}>{item.teamA}</Text>
+            <View style={[styles.vsContainer, { backgroundColor: theme.primary + '25' }]}>
+              <Text style={[styles.vsText, { color: theme.primary }]}>VS</Text>
             </View>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Time</Text>
-            <Text style={[styles.value, { color: theme.text }]}>
-              {new Date(item.date).toLocaleTimeString('en-GB', {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
+            <Text style={[styles.teamName, { color: theme.text }]}>{item.teamB}</Text>
           </View>
 
-          <View style={styles.statusSection}>
-            <View style={[styles.statusBadge, { backgroundColor: item.status === 'ongoing' ? '#10b98120' : theme.primary + '20' }]}>
-              <View 
-                style={[
-                  styles.statusDot, 
-                  { backgroundColor: item.status === 'ongoing' ? '#10b981' : theme.primary }
-                ]} 
-              />
+          {/* Venue */}
+          <View style={styles.infoRow}>
+            <Feather name="map-pin" size={18} color={theme.primary} />
+            <View style={styles.infoContent}>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Venue</Text>
+              <Text style={[styles.value, { color: theme.text }]}>TBA</Text>
             </View>
-            <Text style={[styles.label, { color: theme.textSecondary }]}>Status</Text>
-            <Text style={[styles.statusValue, { color: item.status === 'ongoing' ? '#10b981' : theme.primary }]}>
-              {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
-            </Text>
+          </View>
+
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+          {/* Date & Time Row */}
+          <View style={styles.dateTimeRow}>
+            <View style={styles.dateSection}>
+              <View style={[styles.iconCircle, { backgroundColor: theme.primary + '25' }]}>
+                <Feather name="calendar" size={20} color={theme.primary} />
+              </View>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Date</Text>
+              <Text style={[styles.value, { color: theme.text }]}>
+                {new Date(item.date).toLocaleDateString('en-GB', {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </Text>
+            </View>
+
+            <View style={styles.timeSection}>
+              <View style={[styles.iconCircle, { backgroundColor: theme.accent + '25' }]}>
+                <Feather name="clock" size={20} color={theme.accent} />
+              </View>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Time</Text>
+              <Text style={[styles.value, { color: theme.text }]}>
+                {new Date(item.date).toLocaleTimeString('en-GB', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </Text>
+            </View>
+
+            <View style={styles.statusSection}>
+              <View style={[styles.statusBadge, { backgroundColor: item.status === 'ongoing' ? '#10b98125' : theme.primary + '25' }]}>
+                <View 
+                  style={[
+                    styles.statusDot, 
+                    { backgroundColor: item.status === 'ongoing' ? '#10b981' : theme.primary }
+                  ]} 
+                />
+              </View>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Status</Text>
+              <Text style={[styles.statusValue, { color: item.status === 'ongoing' ? '#10b981' : theme.primary }]}>
+                {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      </BlurView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  heroContainer: { height: 240 },
+  container: {
+    flex: 1,
+  },
+  heroContainer: { height: 280 },
   hero: { flex: 1 },
   heroGradient: { flex: 1, justifyContent: 'flex-end' },
   heroContent: { padding: 24 },
@@ -252,7 +251,7 @@ const styles = StyleSheet.create({
 
   floatingIcons: {
     position: 'absolute',
-    top: 200,
+    top: 230,
     right: 28,
     gap: 14,
     zIndex: 10,
@@ -271,17 +270,28 @@ const styles = StyleSheet.create({
     elevation: 15,
   },
 
-  contentCard: { 
-    marginTop: -30, 
+  blurContainer: {
     marginHorizontal: 16,
-    borderRadius: 24, 
-    padding: 24, 
+    marginTop: -40,
     marginBottom: 40,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
+    borderRadius: 24,
+    overflow: 'hidden',
+  },
+
+  contentCard: {
+    padding: 24,
+  },
+
+  glassCardLight: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+  },
+
+  glassCardDark: {
+    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    borderWidth: 1,
+    borderColor: 'rgba(167, 139, 250, 0.2)',
   },
 
   competitionLabel: { 
