@@ -139,7 +139,7 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalend
           <Feather
             name="heart"
             size={28}
-            color={isFav ? '#ec4899' : '#818cf8'}
+            color={isFav ? '#ec4899' : '#000000ff'}
             fill={isFav ? '#ec4899' : 'none'}
             strokeWidth={2}
           />
@@ -257,8 +257,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   iconButton: {
-    width: 56,
-    height: 56,
+    width: 45,
+    height: 45,
     borderRadius: 28,
     backgroundColor: '#fff',
     justifyContent: 'center',
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
 
   blurContainer: {
     marginHorizontal: 16,
-    marginTop: -40,
+    marginTop: -55,
     marginBottom: 40,
     borderRadius: 24,
     overflow: 'hidden',
