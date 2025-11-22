@@ -1,5 +1,5 @@
 // src/screens/DetailsScreen.tsx
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import {
   ScrollView,
   View,
@@ -9,10 +9,12 @@ import {
   StyleSheet,
   Share,
   Alert,
+  Platform,
+  StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { Feather } from '@expo/vector-icons';
+import * as Calendar from 'expo-calendar';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleFav } from '../features/favourites/favouritesSlice';
 import type { RootState, AppDispatch, Match } from '../types';
@@ -52,24 +54,78 @@ export default function DetailsScreen({ route, navigation }: { route: any; navig
     }
   };
 
+  const onAddToCalendar = async () => {
+    try {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      if (status === 'granted') {
+        const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+        const defaultCalendar = calendars.find((cal) => cal.isPrimary) || calendars[0];
+
+        if (!defaultCalendar) {
+          Alert.alert('Error', 'No calendar found');
+          return;
+        }
+
+        const startDate = new Date(item.date);
+        const endDate = new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
+
+        await Calendar.createEventAsync(defaultCalendar.id, {
+          title: `${item.teamA} vs ${item.teamB}`,
+          startDate,
+          endDate,
+          notes: `${item.sport} - ${item.league || 'International'}`,
+          location: 'TBA',
+        });
+
+        Alert.alert('Success', 'Match added to your calendar!');
+      } else {
+        Alert.alert('Permission Required', 'Please grant calendar access to add events');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Could not add event to calendar');
+    }
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: 'Match Details',
+      headerShown: true,
+      headerBackTitleVisible: false,
+    });
+  }, [navigation]);
+
   return (
     <View style={{ flex: 1 }}>
       {isDark ? (
         <LinearGradient colors={['#6366f1', '#8b5cf6', '#ec4899']} style={{ flex: 1 }}>
-          <ScrollView>
-            <DetailContent item={item} isFav={isFav} theme={theme} onToggleFav={onToggleFav} onShare={onShare} />
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <DetailContent 
+              item={item} 
+              isFav={isFav} 
+              theme={theme} 
+              onToggleFav={onToggleFav} 
+              onShare={onShare}
+              onAddToCalendar={onAddToCalendar}
+            />
           </ScrollView>
         </LinearGradient>
       ) : (
-        <ScrollView style={{ flex: 1, backgroundColor: theme.background }}>
-          <DetailContent item={item} isFav={isFav} theme={theme} onToggleFav={onToggleFav} onShare={onShare} />
+        <ScrollView style={{ flex: 1, backgroundColor: theme.background }} showsVerticalScrollIndicator={false}>
+          <DetailContent 
+            item={item} 
+            isFav={isFav} 
+            theme={theme} 
+            onToggleFav={onToggleFav} 
+            onShare={onShare}
+            onAddToCalendar={onAddToCalendar}
+          />
         </ScrollView>
       )}
     </View>
   );
 }
 
-function DetailContent({ item, isFav, theme, onToggleFav, onShare }: any) {
+function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalendar }: any) {
   return (
     <>
       {/* Hero Image */}
@@ -77,109 +133,108 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare }: any) {
         <ImageBackground source={{ uri: item.image }} style={styles.hero} resizeMode="cover">
           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.heroGradient}>
             <View style={styles.heroContent}>
-              <View style={[styles.sportBadge, { backgroundColor: theme.primary }]}>
-                <Text style={styles.sportBadgeText}>
-                  {sportIcons[item.sport] || '🎯'} {item.sport}
-                </Text>
-              </View>
-              <Text style={styles.heroLeague}>{item.league || 'International Match'}</Text>
+              
             </View>
           </LinearGradient>
         </ImageBackground>
       </View>
 
-      {/* Floating Icons — POSITIONED LOWER & BETTER VISIBILITY */}
+      {/* Floating Icons */}
       <View style={styles.floatingIcons}>
-        <TouchableOpacity style={[styles.iconButton, styles.heartButton]} onPress={onToggleFav}>
+        <TouchableOpacity style={[styles.iconButton]} onPress={onToggleFav}>
           <Feather
-            name={isFav ? 'heart' : 'heart'}
+            name="heart"
             size={28}
-            color={isFav ? '#ec4899' : '#818cf8'}
+            color={isFav ? '#ec4899' : '#020202ff'}
             fill={isFav ? '#ec4899' : 'none'}
             strokeWidth={2}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.iconButton, styles.shareButton]} onPress={onShare}>
+        <TouchableOpacity style={[styles.iconButton]} onPress={onShare}>
           <Feather name="share-2" size={28} color="#6366f1" />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.iconButton]} onPress={onAddToCalendar}>
+          <Feather name="calendar" size={28} color="#10b981" />
         </TouchableOpacity>
       </View>
 
       {/* Main Content Card */}
-      <View style={styles.contentCard}>
+      <View style={[styles.contentCard, { backgroundColor: theme.surface }]}>
+        {/* Competition Name */}
+        <Text style={[styles.competitionLabel, { color: theme.primary }]}>
+          {item.league || 'International Match'}
+        </Text>
+
+        {/* Category */}
+        <View style={styles.categorySection}>
+          <Text style={[styles.label, { color: theme.textSecondary }]}>Category</Text>
+          <Text style={[styles.value, { color: theme.text }]}>
+             {item.sport}
+          </Text>
+        </View>
+
         {/* Teams */}
-        <View style={styles.titleSection}>
-          <Text style={[styles.title, { color: theme.text }]}>{item.teamA}</Text>
-          <View style={[styles.vsContainer, { backgroundColor: theme.surface }]}>
+        <View style={styles.teamsSection}>
+          <Text style={[styles.teamName, { color: theme.text }]}>{item.teamA}</Text>
+          <View style={[styles.vsContainer, { backgroundColor: theme.primary + '20' }]}>
             <Text style={[styles.vsText, { color: theme.primary }]}>VS</Text>
           </View>
-          <Text style={[styles.title, { color: theme.text }]}>{item.teamB}</Text>
+          <Text style={[styles.teamName, { color: theme.text }]}>{item.teamB}</Text>
         </View>
 
-        {/* Status */}
-        <View style={styles.statusContainer}>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: item.status === 'ongoing' ? '#10b981' : theme.primary },
-            ]}
-          >
-            <View style={styles.statusDot} />
-            <Text style={styles.statusText}>{item.status.toUpperCase()}</Text>
+        {/* Venue */}
+        <View style={styles.infoRow}>
+          <Feather name="map-pin" size={18} color={theme.primary} />
+          <View style={styles.infoContent}>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>Venue</Text>
+            <Text style={[styles.value, { color: theme.text }]}>TBA</Text>
           </View>
         </View>
 
-        {/* Date & Time Card */}
-        <View style={[styles.infoGrid, { backgroundColor: theme.surface }]}>
-          <View style={styles.infoCard}>
+        <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+        {/* Date & Time Row */}
+        <View style={styles.dateTimeRow}>
+          <View style={styles.dateSection}>
             <View style={[styles.iconCircle, { backgroundColor: theme.primary + '20' }]}>
-              <Feather name="calendar" size={24} color={theme.primary} />
+              <Feather name="calendar" size={20} color={theme.primary} />
             </View>
-            <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Date</Text>
-            <Text style={[styles.infoValue, { color: theme.text }]}>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>Date</Text>
+            <Text style={[styles.value, { color: theme.text }]}>
               {new Date(item.date).toLocaleDateString('en-GB', {
                 weekday: 'short',
                 day: 'numeric',
                 month: 'short',
-                year: 'numeric',
               })}
             </Text>
           </View>
 
-          <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
-          <View style={styles.infoCard}>
+          <View style={styles.timeSection}>
             <View style={[styles.iconCircle, { backgroundColor: theme.accent + '20' }]}>
-              <Feather name="clock" size={24} color={theme.accent} />
+              <Feather name="clock" size={20} color={theme.accent} />
             </View>
-            <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Time</Text>
-            <Text style={[styles.infoValue, { color: theme.text }]}>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>Time</Text>
+            <Text style={[styles.value, { color: theme.text }]}>
               {new Date(item.date).toLocaleTimeString('en-GB', {
                 hour: '2-digit',
                 minute: '2-digit',
               })}
             </Text>
           </View>
-        </View>
 
-        {/* REDUCED GAP — only 16 instead of 40 */}
-        <View style={{ height: 16 }} />
-
-        {/* Match Information */}
-        <View style={[styles.additionalInfo, { backgroundColor: theme.surface }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text }]}>Match Information</Text>
-          <View style={styles.infoRow}>
-            <Feather name="map-pin" size={18} color={theme.textSecondary} />
-            <Text style={[styles.infoRowText, { color: theme.textSecondary }]}>Venue: TBA</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Feather name="award" size={18} color={theme.textSecondary} />
-            <Text style={[styles.infoRowText, { color: theme.textSecondary }]}>
-              Competition: {item.league || 'International'}
+          <View style={styles.statusSection}>
+            <View style={[styles.statusBadge, { backgroundColor: item.status === 'ongoing' ? '#10b98120' : theme.primary + '20' }]}>
+              <View 
+                style={[
+                  styles.statusDot, 
+                  { backgroundColor: item.status === 'ongoing' ? '#10b981' : theme.primary }
+                ]} 
+              />
+            </View>
+            <Text style={[styles.label, { color: theme.textSecondary }]}>Status</Text>
+            <Text style={[styles.statusValue, { color: item.status === 'ongoing' ? '#10b981' : theme.primary }]}>
+              {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
             </Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Feather name="activity" size={18} color={theme.textSecondary} />
-            <Text style={[styles.infoRowText, { color: theme.textSecondary }]}>Sport: {item.sport}</Text>
           </View>
         </View>
       </View>
@@ -188,18 +243,16 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare }: any) {
 }
 
 const styles = StyleSheet.create({
-  heroContainer: { height: 280 },
+  heroContainer: { height: 240 },
   hero: { flex: 1 },
   heroGradient: { flex: 1, justifyContent: 'flex-end' },
   heroContent: { padding: 24 },
-  sportBadge: { alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, marginBottom: 12 },
+  sportBadge: { alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
   sportBadgeText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  heroLeague: { fontSize: 22, fontWeight: '800', color: '#fff' },
 
-  // Floating Icons — POSITIONED LOWER TO AVOID CARD OVERLAP
   floatingIcons: {
     position: 'absolute',
-    top: 310, // Moved down from 260
+    top: 200,
     right: 28,
     gap: 14,
     zIndex: 10,
@@ -217,30 +270,100 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 15,
   },
-  heartButton: {
-    // Pink background for heart icon
-  },
-  shareButton: {
-    // White background for share icon (already default)
+
+  contentCard: { 
+    marginTop: -30, 
+    marginHorizontal: 16,
+    borderRadius: 24, 
+    padding: 24, 
+    marginBottom: 40,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
 
-  contentCard: { marginTop: -30, borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingTop: 32, paddingHorizontal: 20, paddingBottom: 40 },
-  titleSection: { alignItems: 'center', marginBottom: 18 },
-  title: { fontSize: 24, fontWeight: '800', textAlign: 'center' },
-  vsContainer: { marginVertical: 16, paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20 },
-  vsText: { fontSize: 16, fontWeight: '800', letterSpacing: 2 },
-  statusContainer: { alignItems: 'center', marginBottom: 24},
-  statusBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 30, gap: 8 },
-  statusDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff' },
-  statusText: { color: '#fff', fontWeight: '700', fontSize: 14, letterSpacing: 1 },
-  infoGrid: { flexDirection: 'row', borderRadius: 20, padding: 20, marginBottom: 24 },
-  infoCard: { flex: 1, alignItems: 'center', gap: 8 },
-  iconCircle: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', marginBottom: 4 },
-  infoLabel: { fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 1 },
-  infoValue: { fontSize: 14, fontWeight: '700', textAlign: 'center' },
-  divider: { width: 1, marginHorizontal: 16 },
-  additionalInfo: { borderRadius: 20, padding: 20, gap: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: '800', marginBottom: 8 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  infoRowText: { fontSize: 14, fontWeight: '500' },
+  competitionLabel: { 
+    fontSize: 14, 
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 16,
+  },
+
+  categorySection: { marginBottom: 16 },
+  label: { 
+    fontSize: 11, 
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  value: { 
+    fontSize: 16, 
+    fontWeight: '700',
+  },
+
+  teamsSection: {
+    alignItems: 'center',
+    marginVertical: 20,
+    gap: 12,
+  },
+  teamName: { 
+    fontSize: 22, 
+    fontWeight: '800', 
+    textAlign: 'center',
+  },
+  vsContainer: { 
+    paddingHorizontal: 24, 
+    paddingVertical: 8, 
+    borderRadius: 20,
+  },
+  vsText: { 
+    fontSize: 14, 
+    fontWeight: '800', 
+    letterSpacing: 2,
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 16,
+  },
+  infoContent: { flex: 1 },
+
+  divider: { height: 1, marginVertical: 16 },
+
+  dateTimeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  dateSection: { flex: 1, alignItems: 'center' },
+  timeSection: { flex: 1, alignItems: 'center' },
+  statusSection: { flex: 1, alignItems: 'center' },
+
+  iconCircle: { 
+    width: 48, 
+    height: 48, 
+    borderRadius: 24, 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statusBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statusDot: { width: 8, height: 8, borderRadius: 4 },
+  statusValue: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
 });
