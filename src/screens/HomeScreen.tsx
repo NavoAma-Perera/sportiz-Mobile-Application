@@ -7,9 +7,10 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Platform,
   TextInput,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -39,6 +40,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const [selectedSport, setSelectedSport] = useState<string>('All');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showSportDropdown, setShowSportDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
   
   // Pagination state
@@ -60,12 +62,10 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
   const filteredMatches = useMemo(() => {
     let filtered = [...matches];
 
-    // Filter by sport
     if (selectedSport !== 'All') {
       filtered = filtered.filter((m) => m.sport === selectedSport);
     }
 
-    // Filter by date
     if (selectedDate) {
       filtered = filtered.filter((m) => {
         const matchDate = new Date(m.date);
@@ -77,7 +77,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       });
     }
 
-    // Filter by search query
     if (searchQuery.trim()) {
       filtered = filtered.filter((m) =>
         m.teamA.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -98,7 +97,6 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
   const totalPages = Math.ceil(filteredMatches.length / ITEMS_PER_PAGE);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [selectedSport, selectedDate, searchQuery]);
@@ -114,6 +112,8 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       setCurrentPage((prev) => prev - 1);
     }
   };
+
+  const hasActiveFilters = selectedSport !== 'All' || selectedDate !== null || searchQuery.length > 0;
 
   const resetFilters = () => {
     setSelectedSport('All');
@@ -131,9 +131,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     }
   };
 
-  const clearDate = () => {
-    setSelectedDate(null);
-    setShowDatePicker(false);
+  const handleSelectSport = (sport: string) => {
+    setSelectedSport(sport);
+    setShowSportDropdown(false);
   };
 
   if (status === 'loading') {
@@ -162,10 +162,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        <Header title="Sportiz" subtitle="Your Sports Hub" />
-      </View>
+      <Header />
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>
@@ -186,63 +183,44 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         </View>
       </View>
 
-      {/* Sport Filter */}
-      <View style={styles.filterSection}>
-        <View style={styles.filterHeader}>
-          <Text style={[styles.filterTitle, { color: theme.text }]}>
-            <Feather name="filter" size={16} color={theme.primary} /> Sport
-          </Text>
-          {(selectedSport !== 'All' || selectedDate !== null || searchQuery.length > 0) && (
-            <TouchableOpacity onPress={resetFilters}>
-              <Text style={[styles.resetBtn, { color: theme.accent }]}>
-                Reset All
-              </Text>
-            </TouchableOpacity>
-          )}
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterScroll}
-        >
-          {sports.map((sport) => (
-            <TouchableOpacity
-              key={sport}
-              style={[
-                styles.filterChip,
-                {
-                  backgroundColor:
-                    selectedSport === sport ? theme.primary : theme.surface,
-                  borderColor: selectedSport === sport ? theme.primary : theme.border,
-                },
-              ]}
-              onPress={() => setSelectedSport(sport)}
-            >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  {
-                    color:
-                      selectedSport === sport ? '#fff' : theme.text,
-                  },
-                ]}
-              >
-                {sport}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
-      {/* Date Picker Filter */}
-      <View style={styles.filterSection}>
-        <Text style={[styles.filterTitle, { color: theme.text }]}>
-          <Feather name="calendar" size={16} color={theme.primary} /> Date
-        </Text>
-        <View style={styles.datePickerRow}>
+      {/* Compact Filter Row */}
+      <View style={styles.filterRow}>
+        {/* Sport Dropdown */}
+        <View style={styles.filterItem}>
           <TouchableOpacity
             style={[
-              styles.datePickerBtn,
+              styles.dropdownBtn,
+              {
+                backgroundColor: theme.surface,
+                borderColor: selectedSport !== 'All' ? theme.primary : theme.border,
+                borderWidth: selectedSport !== 'All' ? 2 : 1,
+              },
+            ]}
+            onPress={() => setShowSportDropdown(true)}
+          >
+            <Feather 
+              name="activity" 
+              size={18} 
+              color={selectedSport !== 'All' ? theme.primary : theme.textSecondary} 
+            />
+            <Text
+              style={[
+                styles.dropdownText,
+                { color: selectedSport !== 'All' ? theme.text : theme.textSecondary },
+              ]}
+              numberOfLines={1}
+            >
+              {selectedSport}
+            </Text>
+            <Feather name="chevron-down" size={18} color={theme.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Date Picker */}
+        <View style={styles.filterItem}>
+          <TouchableOpacity
+            style={[
+              styles.dropdownBtn,
               {
                 backgroundColor: theme.surface,
                 borderColor: selectedDate ? theme.primary : theme.border,
@@ -253,36 +231,97 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
           >
             <Feather 
               name="calendar" 
-              size={20} 
+              size={18} 
               color={selectedDate ? theme.primary : theme.textSecondary} 
             />
             <Text
               style={[
-                styles.datePickerText,
+                styles.dropdownText,
                 { color: selectedDate ? theme.text : theme.textSecondary },
               ]}
+              numberOfLines={1}
             >
               {selectedDate
                 ? selectedDate.toLocaleDateString('en-GB', {
-                    weekday: 'short',
                     month: 'short',
                     day: 'numeric',
                   })
-                : 'Select Date'}
+                : 'Date'}
             </Text>
+            {selectedDate ? (
+              <TouchableOpacity 
+                onPress={(e) => {
+                  e.stopPropagation();
+                  setSelectedDate(null);
+                }}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Feather name="x" size={18} color={theme.accent} />
+              </TouchableOpacity>
+            ) : (
+              <Feather name="chevron-down" size={18} color={theme.textSecondary} />
+            )}
           </TouchableOpacity>
-          {selectedDate && (
-            <TouchableOpacity
-              style={[styles.clearDateBtn, { backgroundColor: theme.accent }]}
-              onPress={clearDate}
-            >
-              <Feather name="x" size={20} color="#fff" />
-            </TouchableOpacity>
-          )}
         </View>
+
+        {/* Reset Button */}
+        {hasActiveFilters && (
+          <TouchableOpacity
+            style={[styles.resetBtn, { backgroundColor: theme.accent }]}
+            onPress={resetFilters}
+          >
+            <Feather name="refresh-cw" size={18} color="#fff" />
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Date Picker Modal */}
+      {/* Sport Dropdown Modal */}
+      <Modal
+        visible={showSportDropdown}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSportDropdown(false)}
+      >
+        <Pressable 
+          style={styles.modalOverlay} 
+          onPress={() => setShowSportDropdown(false)}
+        >
+          <View style={[styles.dropdownModal, { backgroundColor: theme.surface }]}>
+            <View style={[styles.dropdownHeader, { borderBottomColor: theme.border }]}>
+              <Text style={[styles.dropdownTitle, { color: theme.text }]}>
+                Select Sport
+              </Text>
+              <TouchableOpacity onPress={() => setShowSportDropdown(false)}>
+                <Feather name="x" size={24} color={theme.textSecondary} />
+              </TouchableOpacity>
+            </View>
+            {sports.map((sport) => (
+              <TouchableOpacity
+                key={sport}
+                style={[
+                  styles.dropdownOption,
+                  selectedSport === sport && { backgroundColor: theme.primary + '20' },
+                ]}
+                onPress={() => handleSelectSport(sport)}
+              >
+                <Text
+                  style={[
+                    styles.dropdownOptionText,
+                    { color: selectedSport === sport ? theme.primary : theme.text },
+                  ]}
+                >
+                  {sport}
+                </Text>
+                {selectedSport === sport && (
+                  <Feather name="check" size={20} color={theme.primary} />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Date Picker */}
       {showDatePicker && (
         <DateTimePicker
           value={selectedDate || new Date()}
@@ -294,10 +333,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
         />
       )}
 
-      {/* iOS Date Picker Done Button */}
       {showDatePicker && Platform.OS === 'ios' && (
         <View style={[styles.iosPickerActions, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
-          <TouchableOpacity onPress={clearDate}>
+          <TouchableOpacity onPress={() => { setSelectedDate(null); setShowDatePicker(false); }}>
             <Text style={[styles.iosPickerBtn, { color: theme.accent }]}>Clear</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowDatePicker(false)}>
@@ -317,11 +355,9 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
       {paginatedMatches.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyEmoji}>🔍</Text>
-          <Text style={[styles.emptyText, { color: theme.text }]}>
-            No matches found
-          </Text>
+          <Text style={[styles.emptyText, { color: theme.text }]}>No matches found</Text>
           <Text style={[styles.emptySubtext, { color: theme.textSecondary }]}>
-            Try adjusting your filters or search
+            Try adjusting your filters
           </Text>
         </View>
       ) : (
@@ -344,48 +380,24 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
             showsVerticalScrollIndicator={false}
           />
 
-          {/* Pagination Controls */}
           {totalPages > 1 && (
             <View style={[styles.pagination, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
               <TouchableOpacity
-                style={[
-                  styles.pageBtn,
-                  {
-                    backgroundColor: currentPage === 1 ? theme.border : theme.primary,
-                  },
-                ]}
+                style={[styles.pageBtn, { backgroundColor: currentPage === 1 ? theme.border : theme.primary }]}
                 onPress={handlePrevPage}
                 disabled={currentPage === 1}
               >
-                <Feather
-                  name="chevron-left"
-                  size={20}
-                  color={currentPage === 1 ? theme.textSecondary : '#fff'}
-                />
+                <Feather name="chevron-left" size={20} color={currentPage === 1 ? theme.textSecondary : '#fff'} />
               </TouchableOpacity>
-
-              <View style={styles.pageInfo}>
-                <Text style={[styles.pageText, { color: theme.text }]}>
-                  Page {currentPage} of {totalPages}
-                </Text>
-              </View>
-
+              <Text style={[styles.pageText, { color: theme.text }]}>
+                {currentPage} / {totalPages}
+              </Text>
               <TouchableOpacity
-                style={[
-                  styles.pageBtn,
-                  {
-                    backgroundColor:
-                      currentPage === totalPages ? theme.border : theme.primary,
-                  },
-                ]}
+                style={[styles.pageBtn, { backgroundColor: currentPage === totalPages ? theme.border : theme.primary }]}
                 onPress={handleNextPage}
                 disabled={currentPage === totalPages}
               >
-                <Feather
-                  name="chevron-right"
-                  size={20}
-                  color={currentPage === totalPages ? theme.textSecondary : '#fff'}
-                />
+                <Feather name="chevron-right" size={20} color={currentPage === totalPages ? theme.textSecondary : '#fff'} />
               </TouchableOpacity>
             </View>
           )}
@@ -396,168 +408,95 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  headerContainer: {
-    paddingTop: 0,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
+  container: { flex: 1 },
+  searchContainer: { paddingHorizontal: 16, paddingVertical: 10 },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  filterSection: {
-    paddingHorizontal: 16,
-    marginTop: 12,
-  },
-  filterHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  filterTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  resetBtn: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  filterScroll: {
-    paddingRight: 16,
-  },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginRight: 8,
-    borderWidth: 1,
-  },
-  filterChipText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  datePickerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  datePickerBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
     borderRadius: 12,
-    flex: 1,
+    borderWidth: 1,
   },
-  datePickerText: {
-    fontSize: 14,
-    fontWeight: '600',
+  searchInput: { flex: 1, fontSize: 15, fontWeight: '500' },
+  filterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 10,
   },
-  clearDateBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  filterItem: { flex: 1 },
+  dropdownBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  dropdownText: { flex: 1, fontSize: 14, fontWeight: '600' },
+  resetBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  dropdownModal: {
+    width: '100%',
+    maxWidth: 320,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+  },
+  dropdownTitle: { fontSize: 18, fontWeight: '700' },
+  dropdownOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+  },
+  dropdownOptionText: { fontSize: 16, fontWeight: '500' },
   iosPickerActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 16,
     borderTopWidth: 1,
   },
-  iosPickerBtn: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  resultsContainer: {
-    paddingHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  resultsText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  listContent: {
-    padding: 16,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  errorText: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  errorSubtext: {
-    fontSize: 14,
-    textAlign: 'center',
-    paddingHorizontal: 32,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 60,
-  },
-  emptyEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-  },
+  iosPickerBtn: { fontSize: 16, fontWeight: '600' },
+  resultsContainer: { paddingHorizontal: 16, marginTop: 12, marginBottom: 4 },
+  resultsText: { fontSize: 13, fontWeight: '600' },
+  listContent: { padding: 16 },
+  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: 12, fontSize: 16, fontWeight: '600' },
+  errorText: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
+  errorSubtext: { fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
+  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 60 },
+  emptyEmoji: { fontSize: 48, marginBottom: 12 },
+  emptyText: { fontSize: 18, fontWeight: '700', marginBottom: 8 },
+  emptySubtext: { fontSize: 14 },
   pagination: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderTopWidth: 1,
-  },
-  pageBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 12,
+    gap: 20,
+    borderTopWidth: 1,
   },
-  pageInfo: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  pageText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
+  pageBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' },
+  pageText: { fontSize: 14, fontWeight: '600' },
 });

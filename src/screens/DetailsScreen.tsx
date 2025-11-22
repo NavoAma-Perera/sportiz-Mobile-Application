@@ -1,5 +1,5 @@
 // src/screens/DetailsScreen.tsx
-import React, { useLayoutEffect } from 'react';
+import React from 'react';
 import {
   ScrollView,
   View,
@@ -46,7 +46,7 @@ export default function DetailsScreen({ route, navigation }: { route: any; navig
   const onShare = async () => {
     try {
       await Share.share({
-        message: `${item.teamA} vs ${item.teamB} - ${new Date(item.date).toLocaleString()} on Sportiz!`,
+        message: `${item.teamA} vs ${item.teamB} - ${new Date(item.date).toLocaleString()} on Sportify!`,
       });
     } catch (error) {
       Alert.alert('Error', 'Could not share match');
@@ -85,25 +85,8 @@ export default function DetailsScreen({ route, navigation }: { route: any; navig
     }
   };
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      title: 'Match Details',
-      headerShown: true,
-      headerStyle: {
-        backgroundColor: isDark ? '#0f172a' : '#ffffff',
-      },
-      headerTitleStyle: {
-        color: isDark ? '#ffffff' : '#000000',
-        fontSize: 18,
-        fontWeight: '700',
-      },
-      headerTintColor: isDark ? '#ffffff' : '#000000',
-      headerBackTitleVisible: false,
-    });
-  }, [navigation, isDark]);
-
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#0f172a' : theme.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <DetailContent 
           item={item} 
@@ -126,29 +109,26 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalend
       <View style={styles.heroContainer}>
         <ImageBackground source={{ uri: item.image }} style={styles.hero} resizeMode="cover">
           <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.heroGradient}>
-            <View style={styles.heroContent}>
-             
-            </View>
+            <View style={styles.heroContent} />
           </LinearGradient>
         </ImageBackground>
       </View>
 
       {/* Floating Icons */}
       <View style={styles.floatingIcons}>
-        <TouchableOpacity style={[styles.iconButton]} onPress={onToggleFav}>
+        <TouchableOpacity style={styles.iconButton} onPress={onToggleFav}>
           <Feather
             name="heart"
-            size={28}
-            color={isFav ? '#ec4899' : '#000000ff'}
-            fill={isFav ? '#ec4899' : 'none'}
+            size={24}
+            color={isFav ? '#ec4899' : '#374151'}
             strokeWidth={2}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.iconButton]} onPress={onShare}>
-          <Feather name="share-2" size={28} color="#6366f1" />
+        <TouchableOpacity style={styles.iconButton} onPress={onShare}>
+          <Feather name="share-2" size={24} color={theme.primary} />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.iconButton]} onPress={onAddToCalendar}>
-          <Feather name="calendar" size={28} color="#10b981" />
+        <TouchableOpacity style={styles.iconButton} onPress={onAddToCalendar}>
+          <Feather name="calendar" size={24} color="#10b981" />
         </TouchableOpacity>
       </View>
 
@@ -163,9 +143,7 @@ function DetailContent({ item, isFav, theme, onToggleFav, onShare, onAddToCalend
           {/* Category */}
           <View style={styles.categorySection}>
             <Text style={[styles.label, { color: theme.textSecondary }]}>Category</Text>
-            <Text style={[styles.value, { color: theme.text }]}>
-              {item.sport}
-            </Text>
+            <Text style={[styles.value, { color: theme.text }]}>{item.sport}</Text>
           </View>
 
           {/* Teams */}
@@ -242,37 +220,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  heroContainer: { height: 280 },
+  heroContainer: { height: 260 },
   hero: { flex: 1 },
   heroGradient: { flex: 1, justifyContent: 'flex-end' },
   heroContent: { padding: 24 },
-  sportBadge: { alignSelf: 'flex-start', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
-  sportBadgeText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 
   floatingIcons: {
     position: 'absolute',
-    top: 300,
-    right: 28,
-    gap: 14,
+    top: 220,
+    right: 24,
+    flexDirection: 'row',
+    gap: 12,
     zIndex: 10,
   },
   iconButton: {
-    width: 45,
-    height: 45,
-    borderRadius: 28,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
   },
 
   blurContainer: {
     marginHorizontal: 16,
-    marginTop: -55,
+    marginTop: -40,
     marginBottom: 40,
     borderRadius: 24,
     overflow: 'hidden',
@@ -283,13 +260,13 @@ const styles = StyleSheet.create({
   },
 
   glassCardLight: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.6)',
   },
 
   glassCardDark: {
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backgroundColor: 'rgba(30, 41, 59, 0.85)',
     borderWidth: 1,
     borderColor: 'rgba(167, 139, 250, 0.2)',
   },
@@ -297,18 +274,19 @@ const styles = StyleSheet.create({
   competitionLabel: { 
     fontSize: 14, 
     fontWeight: '700',
+    alignSelf: 'center',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 16,
   },
 
-  categorySection: { marginBottom: 16 },
+  categorySection: { marginBottom: 8 },
   label: { 
     fontSize: 11, 
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   value: { 
     fontSize: 16, 

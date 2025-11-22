@@ -65,18 +65,19 @@ export default function MatchCard({ item, onPress, onToggleFav, isFav }: MatchCa
         {item.teamA} vs {item.teamB}
       </Text>
 
-      {/* Sport Category */}
-      <View style={styles.categoryRow}>
-        <Text style={[styles.categoryLabel, { color: theme.textSecondary }]}>Category</Text>
-        <Text style={[styles.categoryValue, { color: theme.text }]}>
-          {sportIcons[item.sport] || '🎯'} {item.sport}
-        </Text>
-      </View>
+      {/* Category & Status Row */}
+      <View style={styles.infoRow}>
+        {/* Sport Category */}
+        <View style={styles.infoItem}>
+          <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Category</Text>
+          <Text style={[styles.infoValue, { color: theme.text }]}>
+            {sportIcons[item.sport] || '🎯'} {item.sport}
+          </Text>
+        </View>
 
-      {/* Status & Date */}
-      <View style={styles.statusDateRow}>
-        <View style={styles.statusSection}>
-          <Text style={[styles.statusLabel, { color: theme.textSecondary }]}>Status</Text>
+        {/* Status */}
+        <View style={styles.infoItem}>
+          <Text style={[styles.infoLabel, { color: theme.textSecondary }]}>Status</Text>
           <View 
             style={[
               styles.statusBadge, 
@@ -113,20 +114,6 @@ export default function MatchCard({ item, onPress, onToggleFav, isFav }: MatchCa
             </Text>
           </View>
         </View>
-
-        <View style={styles.dateSection}>
-          <Text style={[styles.dateLabel, { color: theme.textSecondary }]}>Date & Time</Text>
-          <View style={styles.dateInfo}>
-            <Feather name="calendar" size={16} color={theme.primary} />
-            <Text style={[styles.dateValue, { color: theme.text }]}>
-              {new Date(item.date).toLocaleDateString('en-GB', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric' 
-              })}
-            </Text>
-          </View>
-        </View>
       </View>
     </TouchableOpacity>
   );
@@ -148,7 +135,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   competition: { 
     fontSize: 13, 
@@ -159,45 +146,32 @@ const styles = StyleSheet.create({
   matchTitle: { 
     fontSize: 18, 
     fontWeight: '800', 
-    marginVertical: 10,
+    marginBottom: 12,
     lineHeight: 24,
   },
-  categoryRow: {
-    marginVertical: 10,
+  infoRow: {
+    flexDirection: 'row',
+    gap: 16,
   },
-  categoryLabel: { 
+  infoItem: {
+    flex: 1,
+  },
+  infoLabel: { 
     fontSize: 11, 
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  categoryValue: {
+  infoValue: {
     fontSize: 14,
     fontWeight: '600',
-  },
-  statusDateRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 12,
-  },
-  statusSection: {
-    flex: 1,
-  },
-  dateSection: {
-    flex: 1,
-  },
-  statusLabel: { 
-    fontSize: 11, 
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    alignSelf: 'flex-start',
+    gap: 6,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -210,21 +184,5 @@ const styles = StyleSheet.create({
   statusValue: {
     fontSize: 12,
     fontWeight: '700',
-  },
-  dateLabel: { 
-    fontSize: 11, 
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  dateInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  dateValue: {
-    fontSize: 12,
-    fontWeight: '600',
   },
 });
