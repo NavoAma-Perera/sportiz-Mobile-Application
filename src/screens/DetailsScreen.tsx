@@ -227,15 +227,15 @@ const styles = StyleSheet.create({
 
   floatingIcons: {
     position: 'absolute',
-    top: 220,
-    right: 24,
-    flexDirection: 'row',
+    top: 300,
+    right: 20,
+    flexDirection: 'column',
     gap: 12,
     zIndex: 10,
   },
   iconButton: {
-    width: 48,
-    height: 48,
+    width: 45,
+    height: 45,
     borderRadius: 24,
     backgroundColor: '#fff',
     justifyContent: 'center',
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
 
   blurContainer: {
     marginHorizontal: 16,
-    marginTop: -40,
+    marginTop: -60,
     marginBottom: 40,
     borderRadius: 24,
     overflow: 'hidden',
@@ -278,9 +278,9 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 16,
-  },
+  },   
 
-  categorySection: { marginBottom: 8 },
+  categorySection: { marginTop: 10 },
   label: { 
     fontSize: 11, 
     fontWeight: '600',
@@ -334,8 +334,8 @@ const styles = StyleSheet.create({
   statusSection: { flex: 1, alignItems: 'center' },
 
   iconCircle: { 
-    width: 48, 
-    height: 48, 
+    width: 45, 
+    height: 45, 
     borderRadius: 24, 
     justifyContent: 'center', 
     alignItems: 'center',

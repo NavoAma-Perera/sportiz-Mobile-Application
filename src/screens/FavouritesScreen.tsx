@@ -53,7 +53,7 @@ export default function FavouritesScreen({ navigation }: FavouritesScreenProps) 
   if (!favs.length) {
     return (
       <View style={[styles.container, styles.emptyContainer, { backgroundColor: theme.background }]}>
-        <Text style={styles.emptyEmoji}>❤️</Text>
+       
         <Text style={[styles.emptyTitle, { color: theme.text }]}>
           No Favourites Yet
         </Text>

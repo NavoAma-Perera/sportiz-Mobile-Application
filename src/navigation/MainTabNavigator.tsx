@@ -114,6 +114,14 @@ function CalendarStack() {
           ),
         }}
       />
+      <Stack.Screen 
+        name="Details" 
+        component={DetailsScreen}
+        options={({ navigation: nav }) => ({
+          title: 'Match Details',
+          headerLeft: () => <HeaderBackButton onPress={() => nav.goBack()} />,
+        })}
+      />
     </Stack.Navigator>
   );
 }
