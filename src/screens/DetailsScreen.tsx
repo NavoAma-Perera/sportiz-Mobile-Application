@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
 
   floatingIcons: {
     position: 'absolute',
-    top: 230,
+    top: 300,
     right: 28,
     gap: 14,
     zIndex: 10,
