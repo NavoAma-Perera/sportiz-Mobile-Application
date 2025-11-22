@@ -7,6 +7,10 @@ const Light = {
   surface: '#f8fafc',
   text: '#0f172a',
   textSecondary: '#64748b',
+  border: '#e2e8f0',
+  cardBg: '#ffffff',
+  glassBg: 'rgba(255, 255, 255, 0.92)',
+  inputBg: '#f1f5f9',
 };
 
 const Dark = {
@@ -17,7 +21,10 @@ const Dark = {
   surface: '#1e293b',
   text: '#ffffff',
   textSecondary: '#cbd5e1',
+  border: '#334155',
+  cardBg: 'rgba(30, 41, 59, 0.7)',
+  glassBg: 'rgba(15, 23, 42, 0.8)',
+  inputBg: 'rgba(255,255,255,0.1)',
 };
 
-// Export a function that takes isDark
 export const Colors = (isDark: boolean) => (isDark ? Dark : Light);
