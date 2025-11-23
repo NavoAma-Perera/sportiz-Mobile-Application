@@ -44,22 +44,18 @@ const getRegisteredUsers = async () => {
   }
 };
 
-// Register User  - Modified to NOT auto-login
+// Register User
 export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValue: string }>(
   'auth/register',
   async (payload, thunkAPI) => {
     try {
       const { email, password, username, name } = payload;
 
-      // Validation
       if (!email || !password) {
         return thunkAPI.rejectWithValue('Email and password are required');
       }
 
-      // Get existing users
       const existingUsers = await getRegisteredUsers();
-
-      // Check if user already exists
       const userExists = existingUsers.find(
         (u: any) => u.email === email || u.username === username
       );
@@ -68,24 +64,20 @@ export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValu
         return thunkAPI.rejectWithValue('User with this email or username already exists');
       }
 
-      // Create new user
       const newUser = {
         id: `user_${Date.now()}`,
         email,
         username: username || email.split('@')[0],
         name: name || username || email.split('@')[0],
-        password, // Store hashed in production!
+        password,
         createdAt: new Date().toISOString(),
       };
 
-      // Save to users list
       existingUsers.push(newUser);
       await AsyncStorage.setItem(USERS_KEY, JSON.stringify(existingUsers));
 
-      // Generate token (but don't store it)
       const token = `token_${newUser.id}_${Date.now()}`;
 
-      // Create user object - for return only
       const user: User = {
         id: newUser.id,
         email: newUser.email,
@@ -107,11 +99,7 @@ export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: str
   async (payload, thunkAPI) => {
     try {
       const { email, password } = payload;
-
-      // Get all registered users
       const users = await getRegisteredUsers();
-
-      // Find user with matching credentials
       const user = users.find(
         (u: any) => u.email === email && u.password === password
       );
@@ -120,13 +108,9 @@ export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: str
         return thunkAPI.rejectWithValue('Invalid email or password');
       }
 
-      // Generate token
       const token = `token_${user.id}_${Date.now()}`;
-
-      // Store token securely
       await setItemAsync(TOKEN_KEY, token);
 
-      // Create user object (without password)
       const authenticatedUser: User = {
         id: user.id,
         email: user.email,
@@ -135,7 +119,6 @@ export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: str
         accessToken: token,
       };
 
-      // Store current user
       await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(authenticatedUser));
 
       return authenticatedUser;
@@ -145,7 +128,7 @@ export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: str
   }
 );
 
-// Load persisted auth on app launch
+// Load persisted auth
 export const loadPersistedAuth = createAsyncThunk<User | null>(
   'auth/load',
   async () => {
@@ -192,11 +175,16 @@ export const updateUserName = createAsyncThunk<string, string, { rejectValue: st
         return thunkAPI.rejectWithValue('No user logged in');
       }
 
-      // Update user in AsyncStorage
-      const updatedUser = { ...currentUser, name: newName };
+      // Create updated user object
+      const updatedUser = { 
+        ...currentUser, 
+        name: newName 
+      };
+
+      // Update in AsyncStorage (current session)
       await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser));
 
- 
+      // Update in users database
       const users = await getRegisteredUsers();
       const userIndex = users.findIndex((u: any) => u.id === currentUser.id);
       
@@ -224,7 +212,7 @@ export const updateUsername = createAsyncThunk<string, string, { rejectValue: st
         return thunkAPI.rejectWithValue('No user logged in');
       }
 
-      // Check if username already exists
+      // Check if username exists
       const users = await getRegisteredUsers();
       const usernameExists = users.some(
         (u: any) => u.username === newUsername && u.id !== currentUser.id
@@ -234,11 +222,16 @@ export const updateUsername = createAsyncThunk<string, string, { rejectValue: st
         return thunkAPI.rejectWithValue('Username already taken');
       }
 
-      // Update user in AsyncStorage
-      const updatedUser = { ...currentUser, username: newUsername };
+      // Create updated user object
+      const updatedUser = { 
+        ...currentUser, 
+        username: newUsername 
+      };
+
+      // Update in AsyncStorage (current session)
       await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser));
 
-   
+      // Update in users database
       const userIndex = users.findIndex((u: any) => u.id === currentUser.id);
       
       if (userIndex !== -1) {
@@ -275,8 +268,7 @@ const authSlice = createSlice({
         state.status = 'loading';
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
-        
+      .addCase(registerUser.fulfilled, (state) => {
         state.status = 'idle';
         state.error = null;
       })
@@ -309,31 +301,47 @@ const authSlice = createSlice({
         }
       })
 
-      //LOGOUT
+      // Logout
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.error = null;
       })
 
-      // UPDATE NAME 
+      // Update Name
+      .addCase(updateUserName.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(updateUserName.fulfilled, (state, action) => {
         if (state.user) {
-          state.user.name = action.payload;
+          state.user = {
+            ...state.user,
+            name: action.payload
+          };
         }
+        state.status = 'idle';
       })
       .addCase(updateUserName.rejected, (state, action) => {
         state.error = action.payload || 'Failed to update name';
+        state.status = 'failed';
       })
 
-      //  UPDATE USERNAME 
+      // Update Username
+      .addCase(updateUsername.pending, (state) => {
+        state.status = 'loading';
+      })
       .addCase(updateUsername.fulfilled, (state, action) => {
         if (state.user) {
-          state.user.username = action.payload;
+          state.user = {
+            ...state.user,
+            username: action.payload
+          };
         }
+        state.status = 'idle';
       })
       .addCase(updateUsername.rejected, (state, action) => {
         state.error = action.payload || 'Failed to update username';
+        state.status = 'failed';
       });
   },
 });

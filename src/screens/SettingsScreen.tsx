@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Switch,
@@ -28,6 +28,12 @@ export default function SettingsScreen() {
   const [editField, setEditField] = useState<'name' | 'username'>('name');
   const [newName, setNewName] = useState('');
   const [newUsername, setNewUsername] = useState('');
+
+  // Update local state when user changes from Redux
+  useEffect(() => {
+    setNewName(user?.name || '');
+    setNewUsername(user?.username || '');
+  }, [user?.name, user?.username]);
 
   const handleThemeToggle = () => {
     dispatch(toggleTheme());
@@ -74,23 +80,33 @@ export default function SettingsScreen() {
     setShowEditModal(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editField === 'name') {
       if (newName.trim().length < 2) {
         Alert.alert('Invalid Name', 'Name must be at least 2 characters long');
         return;
       }
-      dispatch(updateUserName(newName.trim()));
-      setShowEditModal(false);
-      Alert.alert('Success', 'Full name updated successfully!');
+      
+      try {
+        await dispatch(updateUserName(newName.trim())).unwrap();
+        setShowEditModal(false);
+        Alert.alert('Success', 'Full name updated successfully!');
+      } catch (error: any) {
+        Alert.alert('Error', error || 'Failed to update name');
+      }
     } else {
       if (newUsername.trim().length < 3) {
         Alert.alert('Invalid Username', 'Username must be at least 3 characters long');
         return;
       }
-      dispatch(updateUsername(newUsername.trim()));
-      setShowEditModal(false);
-      Alert.alert('Success', 'Username updated successfully!');
+      
+      try {
+        await dispatch(updateUsername(newUsername.trim())).unwrap();
+        setShowEditModal(false);
+        Alert.alert('Success', 'Username updated successfully!');
+      } catch (error: any) {
+        Alert.alert('Error', error || 'Failed to update username');
+      }
     }
   };
 
@@ -192,7 +208,7 @@ export default function SettingsScreen() {
         onRequestClose={() => setShowEditModal(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setShowEditModal(false)}>
-          <View style={[styles.editModal, { backgroundColor: theme.surface }]}>
+          <Pressable style={[styles.editModal, { backgroundColor: theme.surface }]} onPress={(e) => e.stopPropagation()}>
             <View style={[styles.editModalHeader, { borderBottomColor: theme.border }]}>
               <Text style={[styles.editModalTitle, { color: theme.text }]}>
                 {editField === 'name' ? 'Edit Full Name' : 'Edit Username'}
@@ -238,7 +254,7 @@ export default function SettingsScreen() {
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </Pressable>
         </Pressable>
       </Modal>
 
@@ -335,7 +351,7 @@ export default function SettingsScreen() {
             </View>
             <View style={styles.settingContent}>
               <Text style={[styles.settingLabel, { color: theme.text }]}>Rate App</Text>
-              <Text style={[styles.settingDesc, { color: theme.textSecondary }]}>Love Sportify? Rate us!</Text>
+              <Text style={[styles.settingDesc, { color: theme.textSecondary }]}>Love Sportiz? Rate us!</Text>
             </View>
             <Feather name="chevron-right" size={20} color={theme.textSecondary} />
           </TouchableOpacity>
