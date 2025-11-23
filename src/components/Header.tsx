@@ -8,14 +8,10 @@ import type { RootState } from '../types';
 import { Colors } from '../constants/colors';
 
 interface HeaderProps {
-  onNotificationPress?: () => void;
-  onProfilePress?: () => void;
+  navigation?: any;
 }
 
-export default function Header({ 
-  onNotificationPress,
-  onProfilePress,
-}: HeaderProps) {
+export default function Header({ navigation }: HeaderProps) {
   const user = useSelector((state: RootState) => state.auth.user);
   const isDark = useSelector((state: RootState) => state.favourites.isDark);
   const theme = Colors(isDark);
@@ -23,20 +19,20 @@ export default function Header({
   const getInitials = (name?: string | null, email?: string) => {
     if (name) {
       const parts = name.split(' ');
-      return parts.length > 1 
+      return parts.length > 1
         ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
         : parts[0].substring(0, 2).toUpperCase();
     }
     return email?.substring(0, 2).toUpperCase() || 'GU';
   };
 
-  const getFirstName = (name?: string | null, email?: string) => {
-    if (name) return name.split(' ')[0];
-    return email?.split('@')[0] || 'Guest';
+  const getDisplayName = (user?: any) => {
+    // Use username for greeting, fallback to email-derived name
+    return user?.username || user?.email?.split('@')[0] || 'Guest';
   };
 
   const initials = getInitials(user?.name, user?.email);
-  const firstName = getFirstName(user?.name, user?.email);
+  const displayName = getDisplayName(user);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -46,7 +42,7 @@ export default function Header({
   };
 
   // Theme-aware colors (typed as tuples for LinearGradient)
-  const gradientColors: readonly [string, string, string] = isDark 
+  const gradientColors: readonly [string, string, string] = isDark
     ? [theme.background, theme.surface, theme.primary]
     : [theme.primary, theme.primaryLight, '#a5b4fc'];
 
@@ -54,9 +50,15 @@ export default function Header({
     ? [theme.accent, '#ec4899']
     : ['#f472b6', theme.accent];
 
+  const handleAvatarPress = () => {
+    if (navigation) {
+      navigation.navigate('Settings');
+    }
+  };
+
   return (
     <>
-      <StatusBar 
+      <StatusBar
         backgroundColor="transparent"
         translucent
         barStyle="light-content"
@@ -66,14 +68,14 @@ export default function Header({
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={[
-          styles.container, 
+          styles.container,
           { paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 12 : 56 }
         ]}
       >
         {/* Decorative elements */}
         <View style={[styles.decorCircle1, { backgroundColor: isDark ? 'rgba(167,139,250,0.1)' : 'rgba(255,255,255,0.12)' }]} />
         <View style={[styles.decorCircle2, { backgroundColor: isDark ? 'rgba(244,114,182,0.08)' : 'rgba(255,255,255,0.08)' }]} />
-        
+
         <View style={styles.content}>
           {/* Left: Greeting & Title */}
           <View style={styles.leftSection}>
@@ -81,27 +83,14 @@ export default function Header({
               <Text style={styles.greeting}>{getGreeting()}</Text>
               <Text style={styles.wave}> 👋</Text>
             </View>
-            <Text style={styles.userName}>{firstName}</Text>
+            <Text style={styles.userName}>{displayName}</Text>
           </View>
 
-          {/* Right: Actions */}
+          {/* Right: Avatar */}
           <View style={styles.rightSection}>
-            {/* Notification Bell */}
-            <TouchableOpacity 
-              style={[styles.iconBtn, { backgroundColor: isDark ? 'rgba(167,139,250,0.2)' : 'rgba(255,255,255,0.2)' }]}
-              onPress={onNotificationPress}
-              activeOpacity={0.7}
-            >
-              <Feather name="bell" size={22} color="#fff" />
-              <View style={[styles.notifBadge, { borderColor: theme.primaryLight }]}>
-                <Text style={styles.notifBadgeText}>3</Text>
-              </View>
-            </TouchableOpacity>
-
-            {/* Avatar */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.avatarBtn, { backgroundColor: isDark ? 'rgba(244,114,182,0.25)' : 'rgba(255,255,255,0.25)' }]}
-              onPress={onProfilePress}
+              onPress={handleAvatarPress}
               activeOpacity={0.8}
             >
               <LinearGradient
@@ -116,8 +105,15 @@ export default function Header({
 
         {/* App branding */}
         <View style={[styles.brandBar, { backgroundColor: isDark ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.15)' }]}>
-          <Text style={styles.brandTitle}>Sport</Text>
-          <Text style={[styles.brandAccent, { color: theme.accent }]}>iz</Text>
+          <View style={styles.logoWrapper}>
+            <View style={[styles.logoIconCircle, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+              <Feather name="activity" size={20} color="#fff" />
+            </View>
+            <View style={styles.brandTextWrapper}>
+              <Text style={styles.brandTitle}>Sport</Text>
+              <Text style={[styles.brandAccent, { color: theme.accent }]}>iz</Text>
+            </View>
+          </View>
         </View>
       </LinearGradient>
     </>
@@ -177,31 +173,6 @@ const styles = StyleSheet.create({
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-  },
-  iconBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  notifBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#ef4444',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-  },
-  notifBadgeText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#fff',
   },
   avatarBtn: {
     borderRadius: 16,
@@ -220,22 +191,35 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   brandBar: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 16,
   },
+  logoWrapper: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  logoIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  brandTextWrapper: {
+    flexDirection: 'row',
+  },
   brandTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800',
     color: '#fff',
     letterSpacing: 1,
   },
   brandAccent: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800',
     letterSpacing: 1,
   },

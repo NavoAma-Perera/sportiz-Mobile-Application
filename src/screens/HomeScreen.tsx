@@ -162,7 +162,7 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <Header />
+      <Header navigation={navigation} />
 
       {/* Search Bar */}
       <View style={styles.searchContainer}>

@@ -1,6 +1,8 @@
+// src/features/auth/authSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setItemAsync, getItemAsync, deleteItemAsync } from 'expo-secure-store';
+
 const AUTH_KEY = 'sportiz_auth';
 const USERS_KEY = 'sportiz_users';
 const TOKEN_KEY = 'sportiz_token';
@@ -185,6 +187,79 @@ export const logoutUser = createAsyncThunk<void>(
   }
 );
 
+// Update User Name
+export const updateUserName = createAsyncThunk<string, string, { rejectValue: string }>(
+  'auth/updateName',
+  async (newName, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState() as any;
+      const currentUser = state.auth.user;
+
+      if (!currentUser) {
+        return thunkAPI.rejectWithValue('No user logged in');
+      }
+
+      // Update user in AsyncStorage
+      const updatedUser = { ...currentUser, name: newName };
+      await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser));
+
+      // Also update in the users list
+      const users = await getRegisteredUsers();
+      const userIndex = users.findIndex((u: any) => u.id === currentUser.id);
+      
+      if (userIndex !== -1) {
+        users[userIndex].name = newName;
+        await AsyncStorage.setItem(USERS_KEY, JSON.stringify(users));
+      }
+
+      return newName;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.message || 'Failed to update name');
+    }
+  }
+);
+
+// Update Username
+export const updateUsername = createAsyncThunk<string, string, { rejectValue: string }>(
+  'auth/updateUsername',
+  async (newUsername, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState() as any;
+      const currentUser = state.auth.user;
+
+      if (!currentUser) {
+        return thunkAPI.rejectWithValue('No user logged in');
+      }
+
+      // Check if username already exists
+      const users = await getRegisteredUsers();
+      const usernameExists = users.some(
+        (u: any) => u.username === newUsername && u.id !== currentUser.id
+      );
+
+      if (usernameExists) {
+        return thunkAPI.rejectWithValue('Username already taken');
+      }
+
+      // Update user in AsyncStorage
+      const updatedUser = { ...currentUser, username: newUsername };
+      await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser));
+
+      // Also update in the users list
+      const userIndex = users.findIndex((u: any) => u.id === currentUser.id);
+      
+      if (userIndex !== -1) {
+        users[userIndex].username = newUsername;
+        await AsyncStorage.setItem(USERS_KEY, JSON.stringify(users));
+      }
+
+      return newUsername;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.message || 'Failed to update username');
+    }
+  }
+);
+
 const initialState: AuthState = {
   user: null,
   token: null,
@@ -247,6 +322,26 @@ const authSlice = createSlice({
         state.user = null;
         state.token = null;
         state.error = null;
+      })
+
+      // === UPDATE NAME ===
+      .addCase(updateUserName.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.name = action.payload;
+        }
+      })
+      .addCase(updateUserName.rejected, (state, action) => {
+        state.error = action.payload || 'Failed to update name';
+      })
+
+      // === UPDATE USERNAME ===
+      .addCase(updateUsername.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.username = action.payload;
+        }
+      })
+      .addCase(updateUsername.rejected, (state, action) => {
+        state.error = action.payload || 'Failed to update username';
       });
   },
 });

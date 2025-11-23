@@ -1,6 +1,7 @@
 // src/screens/LandingScreen.tsx
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../types';
@@ -47,11 +48,22 @@ export default function LandingScreen({ navigation }: any) {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <Animated.View style={[styles.logoContainer, { transform: [{ scale: scaleValue }] }]}>
         <Animated.View style={{ transform: [{ rotate: spin }] }}>
-          <Feather name="activity" size={80} color={theme.primary} />
+          <LinearGradient 
+            colors={['#8b5cf6', '#ec4899']} 
+            start={{ x: 0, y: 0 }} 
+            end={{ x: 1, y: 1 }} 
+            style={styles.iconGradientBg}
+          >
+            <Feather name="activity" size={80} color="#fff" />
+          </LinearGradient>
         </Animated.View>
       </Animated.View>
 
-      <Text style={[styles.title, { color: theme.primary }]}>Sportiz</Text>
+      <View style={styles.titleContainer}>
+        <Text style={[styles.title, { color: theme.text }]}>Sport</Text>
+        <Text style={[styles.titleAccent, { color: '#8b5cf6' }]}>i</Text>
+        <Text style={[styles.titleAccent, { color: '#ec4899' }]}>z</Text>
+      </View>
       <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Track Your Favorite Sports</Text>
 
       <View style={styles.dots}>
@@ -60,7 +72,9 @@ export default function LandingScreen({ navigation }: any) {
             key={i}
             style={[
               styles.dot,
-              { backgroundColor: theme.primary },
+              { 
+                backgroundColor: i === 0 ? '#8b5cf6' : i === 1 ? '#ec4899' : theme.primary
+              },
               {
                 opacity: spinValue.interpolate({
                   inputRange: [0, 0.33, 0.66, 1],
@@ -82,8 +96,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoContainer: { marginBottom: 30 },
-  title: { fontSize: 48, fontWeight: '800', letterSpacing: -1 },
-  subtitle: { fontSize: 18, marginTop: 8, fontWeight: '500' },
-  dots: { flexDirection: 'row', marginTop: 50, gap: 10 },
-  dot: { width: 12, height: 12, borderRadius: 6 },
+  iconGradientBg: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  title: { 
+    fontSize: 48, 
+    fontWeight: '800', 
+    letterSpacing: -1 
+  },
+  titleAccent: {
+    fontSize: 48,
+    fontWeight: '800',
+    letterSpacing: -1,
+  },
+  subtitle: { 
+    fontSize: 18, 
+    marginTop: 8, 
+    fontWeight: '500' 
+  },
+  dots: { 
+    flexDirection: 'row', 
+    marginTop: 50, 
+    gap: 10 
+  },
+  dot: { 
+    width: 12, 
+    height: 12, 
+    borderRadius: 6 
+  },
 });

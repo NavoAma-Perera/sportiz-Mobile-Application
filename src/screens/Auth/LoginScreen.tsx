@@ -71,8 +71,14 @@ function AuthCard({ isDark, theme, error, status, showPassword, setShowPassword,
       <BlurView intensity={isDark ? 80 : 60} tint={isDark ? 'dark' : 'light'} style={styles.card}>
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Feather name="activity" size={64} color={theme.primaryLight} />
-          <Text style={[styles.logoText, { color: theme.text }]}>Sportiz</Text>
+          <LinearGradient colors={['#8b5cf6', '#ec4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.iconGradientBg}>
+            <Feather name="activity" size={64} color="#fff" />
+          </LinearGradient>
+          <View style={styles.brandContainer}>
+            <Text style={[styles.logoText, { color: theme.text }]}>Sport</Text>
+            <Text style={[styles.logoText, { color: '#8b5cf6' }]}>i</Text>
+            <Text style={[styles.logoText, { color: '#ec4899' }]}>z</Text>
+          </View>
         </View>
 
         <Text style={[styles.title, { color: theme.text }]}>Welcome Back</Text>
@@ -137,7 +143,7 @@ function AuthCard({ isDark, theme, error, status, showPassword, setShowPassword,
         <View style={styles.footer}>
           <Text style={[styles.footerText, { color: theme.textSecondary }]}>Don't have an account? </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-            <Text style={[styles.linkText, { color: theme.accent }]}>Create one</Text>
+            <Text style={[styles.linkText, { color: theme.accent }]}>Sign Up</Text>
           </TouchableOpacity>
         </View>
       </BlurView>
@@ -161,6 +167,8 @@ const styles = StyleSheet.create({
     elevation: 24,
   },
   logoContainer: { alignItems: 'center', marginBottom: 32 },
+  iconGradientBg: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center' },
+  brandContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 16 },
   logoText: { fontSize: 36, fontWeight: '800', marginTop: 16 },
   title: { fontSize: 28, fontWeight: '700', textAlign: 'center', marginBottom: 8 },
   subtitle: { fontSize: 16, textAlign: 'center', marginBottom: 32 },
