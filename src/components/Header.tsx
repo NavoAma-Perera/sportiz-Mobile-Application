@@ -69,7 +69,7 @@ export default function Header({ navigation }: HeaderProps) {
         end={{ x: 1, y: 1 }}
         style={[
           styles.container,
-          { paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 12 : 56 }
+          { paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 24 : 72 }
         ]}
       >
         {/* Decorative elements */}
@@ -105,14 +105,18 @@ export default function Header({ navigation }: HeaderProps) {
 
         {/* App branding */}
         <View style={[styles.brandBar, { backgroundColor: isDark ? 'rgba(167,139,250,0.15)' : 'rgba(255,255,255,0.15)' }]}>
-          <View style={styles.logoWrapper}>
-            <View style={[styles.logoIconCircle, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-              <Feather name="activity" size={20} color="#fff" />
-            </View>
-            <View style={styles.brandTextWrapper}>
-              <Text style={styles.brandTitle}>Sport</Text>
-              <Text style={[styles.brandAccent, { color: theme.accent }]}>iz</Text>
-            </View>
+          <LinearGradient 
+            colors={['#8b5cf6', '#ec4899']} 
+            start={{ x: 0, y: 0 }} 
+            end={{ x: 1, y: 1 }} 
+            style={styles.iconGradientBg}
+          >
+            <Feather name="activity" size={28} color="#fff" />
+          </LinearGradient>
+          <View style={styles.brandTextContainer}>
+            <Text style={styles.brandTitle}>Sport</Text>
+            <Text style={[styles.brandAccent, { color: '#8b5cf6' }]}>i</Text>
+            <Text style={[styles.brandAccent, { color: '#ec4899' }]}>z</Text>
           </View>
         </View>
       </LinearGradient>
@@ -123,7 +127,7 @@ export default function Header({ navigation }: HeaderProps) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingBottom: 24,
     overflow: 'hidden',
   },
   decorCircle1: {
@@ -146,7 +150,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
   },
   leftSection: {
     flex: 1,
@@ -191,26 +195,25 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   brandBar: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     borderRadius: 16,
+    gap: 12,
   },
-  logoWrapper: {
-    alignItems: 'center',
-    gap: 8,
-  },
-  logoIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+  iconGradientBg: {
+    width: 50,
+    height: 50,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  brandTextWrapper: {
+  brandTextContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   brandTitle: {
     fontSize: 24,
