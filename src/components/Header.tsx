@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   iconGradientBg: {
     width: 50,
     height: 50,
-    borderRadius: 14,
+    borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
   },
