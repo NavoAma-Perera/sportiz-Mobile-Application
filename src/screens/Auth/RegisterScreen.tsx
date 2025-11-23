@@ -1,4 +1,4 @@
-// src/screens/Auth/RegisterScreen.tsx
+
 import React from 'react';
 import {
   ScrollView,
@@ -55,8 +55,13 @@ export default function RegisterScreen({ navigation }: { navigation: any }) {
 
       Alert.alert(
         'Registration Successful! 🎉',
-        'Welcome to Sportiz! You are now logged in.',
-        [{ text: 'Get Started' }]
+        'Your account has been created. Please sign in to continue.',
+        [
+          { 
+            text: 'Sign In', 
+            onPress: () => navigation.navigate('Login')
+          }
+        ]
       );
     } catch (err) {
       // Error shown below
@@ -92,7 +97,7 @@ export default function RegisterScreen({ navigation }: { navigation: any }) {
 function RegisterContent({ isDark, theme, error, status, showPassword, setShowPassword, showConfirmPassword, setShowConfirmPassword, handleSubmit, navigation }: any) {
   return (
     <View style={styles.container}>
-      <BlurView intensity={isDark ? 80 : 60} tint={isDark ? 'dark' : 'light'} style={styles.card}>
+      <BlurView intensity={isDark ? 80 : 60} tint={isDark ? 'dark' : 'light'} style={[styles.card, !isDark && styles.cardLight]}>
         {/* Back Button */}
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Feather name="arrow-left" size={28} color={theme.text} />
@@ -119,7 +124,7 @@ function RegisterContent({ isDark, theme, error, status, showPassword, setShowPa
           onSubmit={handleSubmit}
         >
           {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
-            <View style={styles.form}>
+            <View style={[styles.form, !isDark && styles.formLight]}>
               {/* Full Name */}
               <View style={[styles.inputContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#f8fafc', borderColor: isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0' }]}>
                 <Feather name="user" size={20} color={theme.textSecondary} style={styles.inputIcon} />
@@ -238,7 +243,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 32,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    backgroundColor: 'rgba(30, 41, 59, 0.9)',
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.08)',
     shadowColor: '#000',
@@ -246,6 +251,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 24,
     elevation: 24,
+  },
+  cardLight: {
+    backgroundColor: '#ffffff',
   },
   backBtn: { position: 'absolute', top: 16, left: 16, zIndex: 10 },
   logoContainer: { alignItems: 'center', marginBottom: 32 },
@@ -255,6 +263,11 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: '700', textAlign: 'center', marginBottom: 8 },
   subtitle: { fontSize: 16, textAlign: 'center', marginBottom: 32 },
   form: { gap: 16 },
+  formLight: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',

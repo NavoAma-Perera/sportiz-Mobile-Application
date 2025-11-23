@@ -45,7 +45,7 @@ const getRegisteredUsers = async () => {
   }
 };
 
-// Register User (Local Storage)
+// Register User (Local Storage) - Modified to NOT auto-login
 export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValue: string }>(
   'auth/register',
   async (payload, thunkAPI) => {
@@ -83,13 +83,10 @@ export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValu
       existingUsers.push(newUser);
       await AsyncStorage.setItem(USERS_KEY, JSON.stringify(existingUsers));
 
-      // Generate token
+      // Generate token (but don't store it)
       const token = `token_${newUser.id}_${Date.now()}`;
 
-      // Store token securely
-      await setItemAsync(TOKEN_KEY, token);
-
-      // Create user object (without password)
+      // Create user object (without password) - for return only
       const user: User = {
         id: newUser.id,
         email: newUser.email,
@@ -98,8 +95,9 @@ export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValu
         accessToken: token,
       };
 
-      // Store current user
-      await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(user));
+      // DON'T store token or user - let them login manually
+      // await setItemAsync(TOKEN_KEY, token); // REMOVED
+      // await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(user)); // REMOVED
 
       return user;
     } catch (error: any) {
@@ -277,14 +275,15 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // === REGISTER ===
+      // === REGISTER === (Modified to NOT save user/token)
       .addCase(registerUser.pending, (state) => {
         state.status = 'loading';
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.token = action.payload.accessToken;
+        // DON'T save user and token - force them to login
+        // state.user = action.payload; // REMOVED
+        // state.token = action.payload.accessToken; // REMOVED
         state.status = 'idle';
         state.error = null;
       })

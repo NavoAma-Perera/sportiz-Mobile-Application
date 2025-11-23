@@ -68,7 +68,7 @@ export default function LoginScreen({ navigation }: { navigation: any }) {
 function AuthCard({ isDark, theme, error, status, showPassword, setShowPassword, handleSubmit, navigation }: any) {
   return (
     <View style={styles.container}>
-      <BlurView intensity={isDark ? 80 : 60} tint={isDark ? 'dark' : 'light'} style={styles.card}>
+      <BlurView intensity={isDark ? 80 : 60} tint={isDark ? 'dark' : 'light'} style={[styles.card, !isDark && styles.cardLight]}>
         {/* Logo */}
         <View style={styles.logoContainer}>
           <LinearGradient colors={['#8b5cf6', '#ec4899']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.iconGradientBg}>
@@ -88,7 +88,7 @@ function AuthCard({ isDark, theme, error, status, showPassword, setShowPassword,
 
         <Formik initialValues={{ email: '', password: '' }} validationSchema={validationSchema} onSubmit={handleSubmit}>
           {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
-            <View style={styles.form}>
+            <View style={[styles.form, !isDark && styles.formLight]}>
               {/* Email */}
               <View style={[styles.inputContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : '#f8fafc', borderColor: isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0' }]}>
                 <Feather name="mail" size={20} color={theme.textSecondary} style={styles.inputIcon} />
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 32,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    backgroundColor: 'rgba(30, 41, 59, 0.9)',
     borderWidth: 1,
     borderColor: 'rgba(0, 0, 0, 0.08)',
     shadowColor: '#000',
@@ -166,6 +166,9 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 24,
   },
+  cardLight: {
+    backgroundColor: '#ffffff',
+  },
   logoContainer: { alignItems: 'center', marginBottom: 32 },
   iconGradientBg: { width: 80, height: 80, borderRadius: 40, justifyContent: 'center', alignItems: 'center' },
   brandContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 16 },
@@ -173,6 +176,11 @@ const styles = StyleSheet.create({
   title: { fontSize: 28, fontWeight: '700', textAlign: 'center', marginBottom: 8 },
   subtitle: { fontSize: 16, textAlign: 'center', marginBottom: 32 },
   form: { gap: 16 },
+  formLight: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
