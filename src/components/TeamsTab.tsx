@@ -1,4 +1,3 @@
-// src/components/details/TeamsTab.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import type { Match } from '../types';
@@ -52,7 +51,7 @@ export const TeamsTab: React.FC<TeamsTabProps> = ({ item, theme }) => {
         }
       }
 
-      // If no data fetched, add basic team info
+      // If no data fetched, basic team info
       if (teamsData.length === 0) {
         teamsData.push(
           { name: item.teamA, wins: null, losses: null, draws: null },
@@ -93,7 +92,7 @@ export const TeamsTab: React.FC<TeamsTabProps> = ({ item, theme }) => {
               </Text>
             )}
 
-            {/* Team Stats - Only show if we have data */}
+            {/* Team Stats */}
             {(team.wins !== null || team.losses !== null || team.draws !== null) && (
               <View style={styles.teamStatsRow}>
                 {team.wins !== null && (
@@ -139,7 +138,7 @@ export const TeamsTab: React.FC<TeamsTabProps> = ({ item, theme }) => {
               )}
             </View>
 
-            {/* Show message if no data available */}
+            {/* Show message if no data  */}
             {!team.wins && !team.losses && !team.draws && !team.description && !team.stadium && (
               <Text style={[styles.noDataText, { color: theme.textSecondary }]}>
                 Detailed statistics not available

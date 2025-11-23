@@ -1,4 +1,3 @@
-// src/screens/LoginScreen.tsx
 import React from 'react';
 import {
   ScrollView,

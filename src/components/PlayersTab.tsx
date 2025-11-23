@@ -1,4 +1,3 @@
-// src/components/details/PlayersTab.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import type { Match } from '../types';
@@ -27,7 +26,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = ({ item, theme }) => {
             team: item.teamA,
             position: p.strPosition || 'Player',
             number: p.strNumber ? parseInt(p.strNumber) : null,
-            // Use cutout for better quality, fallback to thumb
+           
             image: p.strCutout || p.strThumb || null,
             age: p.intAge || null,
             nationality: p.strNationality || null,
@@ -68,7 +67,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = ({ item, theme }) => {
     );
   }
 
-  // Show message if no players found
+  // Show message if no player
   if (players.length === 0) {
     return (
       <View style={styles.emptyContainer}>
@@ -98,18 +97,18 @@ export const PlayersTab: React.FC<PlayersTabProps> = ({ item, theme }) => {
               }
             ]}
           >
-            {/* Player image with gradient background */}
+          
             <View style={[styles.imageContainer, { backgroundColor: accentColor + '20' }]}>
               {player.image ? (
                 <>
-                  {/* Gradient background for cutout images */}
+               
                   <View style={[styles.gradientBg, { backgroundColor: accentColor + '30' }]} />
                   <Image
                     source={{ uri: player.image }}
                     style={styles.playerImage}
                     resizeMode="contain"
                   />
-                  {/* Jersey number badge */}
+                 
                   {player.number && (
                     <View style={[styles.numberBadge, { backgroundColor: accentColor }]}>
                       <Text style={styles.numberBadgeText}>{player.number}</Text>

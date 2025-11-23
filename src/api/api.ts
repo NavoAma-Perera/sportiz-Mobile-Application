@@ -18,13 +18,13 @@ export interface RawEvent {
 
 export const getAllUpcomingEvents = async (): Promise<RawEvent[]> => {
   const endpoints = [
-    '/eventsnextleague.php?id=4328', // English Premier League
-    '/eventsnextleague.php?id=4329', // English Championship
-    '/eventsnextleague.php?id=4335', // Spanish La Liga
-    '/eventsnextleague.php?id=4331', // German Bundesliga
-    '/eventsnextleague.php?id=4332', // Italian Serie A
-    '/eventsnextleague.php?id=4334', // French Ligue 1
-    '/eventsnextleague.php?id=4346', // UEFA Champions League
+    '/eventsnextleague.php?id=4328', 
+    '/eventsnextleague.php?id=4329', 
+    '/eventsnextleague.php?id=4335', 
+    '/eventsnextleague.php?id=4331', 
+    '/eventsnextleague.php?id=4332',
+    '/eventsnextleague.php?id=4334', 
+    '/eventsnextleague.php?id=4346', 
   ];
 
   let events: RawEvent[] = [];
@@ -44,7 +44,7 @@ export const getAllUpcomingEvents = async (): Promise<RawEvent[]> => {
   return events;
 };
 
-// Fetch detailed event information (includes venue, etc.)
+// Fetch event info
 export const fetchEventDetails = async (eventId: string) => {
   try {
     const res = await fetch(`${BASE_URL_V1}/lookupevent.php?id=${eventId}`);

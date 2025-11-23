@@ -1,4 +1,3 @@
-// src/navigation/MainTabNavigator.tsx
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -32,7 +31,7 @@ const getHeaderStyle = (theme: any, isDark: boolean) => ({
   headerBackTitleVisible: false,
 });
 
-// Custom Back Button Component
+// Custom Back Button 
 function HeaderBackButton({ onPress }: { onPress: () => void }) {
   return (
     <TouchableOpacity onPress={onPress} style={{ marginLeft: 8, padding: 8 }}>
@@ -41,7 +40,7 @@ function HeaderBackButton({ onPress }: { onPress: () => void }) {
   );
 }
 
-// Home Stack (HomeScreen → DetailsScreen)
+// Home Stack 
 function HomeStack() {
   const isDark = useSelector((state: RootState) => state.favourites.isDark);
   const theme = Colors(isDark);
@@ -66,7 +65,7 @@ function HomeStack() {
   );
 }
 
-// Favorites Stack (FavouritesScreen → DetailsScreen)
+// Favorites Stack 
 function FavouritesStack() {
   const isDark = useSelector((state: RootState) => state.favourites.isDark);
   const theme = Colors(isDark);

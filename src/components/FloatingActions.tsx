@@ -1,6 +1,4 @@
-// ==========================================
-// FILE 5: src/components/details/FloatingActions.tsx
-// ==========================================
+
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Share, Alert, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';

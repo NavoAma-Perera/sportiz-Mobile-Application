@@ -1,4 +1,3 @@
-// src/features/auth/authSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setItemAsync, getItemAsync, deleteItemAsync } from 'expo-secure-store';
@@ -35,7 +34,7 @@ interface RegisterPayload {
   name?: string;
 }
 
-// Helper: Get all registered users
+// Get all registered users
 const getRegisteredUsers = async () => {
   try {
     const usersJson = await AsyncStorage.getItem(USERS_KEY);
@@ -45,7 +44,7 @@ const getRegisteredUsers = async () => {
   }
 };
 
-// Register User (Local Storage) - Modified to NOT auto-login
+// Register User  - Modified to NOT auto-login
 export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValue: string }>(
   'auth/register',
   async (payload, thunkAPI) => {
@@ -86,7 +85,7 @@ export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValu
       // Generate token (but don't store it)
       const token = `token_${newUser.id}_${Date.now()}`;
 
-      // Create user object (without password) - for return only
+      // Create user object - for return only
       const user: User = {
         id: newUser.id,
         email: newUser.email,
@@ -95,10 +94,6 @@ export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValu
         accessToken: token,
       };
 
-      // DON'T store token or user - let them login manually
-      // await setItemAsync(TOKEN_KEY, token); // REMOVED
-      // await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(user)); // REMOVED
-
       return user;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.message || 'Registration failed');
@@ -106,7 +101,7 @@ export const registerUser = createAsyncThunk<User, RegisterPayload, { rejectValu
   }
 );
 
-// Login User (Local Storage)
+// Login User 
 export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: string }>(
   'auth/login',
   async (payload, thunkAPI) => {
@@ -150,7 +145,7 @@ export const loginUser = createAsyncThunk<User, LoginPayload, { rejectValue: str
   }
 );
 
-// Load persisted auth (on app launch)
+// Load persisted auth on app launch
 export const loadPersistedAuth = createAsyncThunk<User | null>(
   'auth/load',
   async () => {
@@ -201,7 +196,7 @@ export const updateUserName = createAsyncThunk<string, string, { rejectValue: st
       const updatedUser = { ...currentUser, name: newName };
       await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser));
 
-      // Also update in the users list
+ 
       const users = await getRegisteredUsers();
       const userIndex = users.findIndex((u: any) => u.id === currentUser.id);
       
@@ -243,7 +238,7 @@ export const updateUsername = createAsyncThunk<string, string, { rejectValue: st
       const updatedUser = { ...currentUser, username: newUsername };
       await AsyncStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser));
 
-      // Also update in the users list
+   
       const userIndex = users.findIndex((u: any) => u.id === currentUser.id);
       
       if (userIndex !== -1) {
@@ -275,15 +270,13 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // === REGISTER === (Modified to NOT save user/token)
+      // Register
       .addCase(registerUser.pending, (state) => {
         state.status = 'loading';
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
-        // DON'T save user and token - force them to login
-        // state.user = action.payload; // REMOVED
-        // state.token = action.payload.accessToken; // REMOVED
+        
         state.status = 'idle';
         state.error = null;
       })
@@ -292,7 +285,7 @@ const authSlice = createSlice({
         state.status = 'failed';
       })
 
-      // === LOGIN ===
+      // Login
       .addCase(loginUser.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -308,7 +301,7 @@ const authSlice = createSlice({
         state.status = 'failed';
       })
 
-      // === LOAD PERSISTED ===
+      // Load persisted auth
       .addCase(loadPersistedAuth.fulfilled, (state, action) => {
         if (action.payload) {
           state.user = action.payload;
@@ -316,14 +309,14 @@ const authSlice = createSlice({
         }
       })
 
-      // === LOGOUT ===
+      //LOGOUT
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.error = null;
       })
 
-      // === UPDATE NAME ===
+      // UPDATE NAME 
       .addCase(updateUserName.fulfilled, (state, action) => {
         if (state.user) {
           state.user.name = action.payload;
@@ -333,7 +326,7 @@ const authSlice = createSlice({
         state.error = action.payload || 'Failed to update name';
       })
 
-      // === UPDATE USERNAME ===
+      //  UPDATE USERNAME 
       .addCase(updateUsername.fulfilled, (state, action) => {
         if (state.user) {
           state.user.username = action.payload;

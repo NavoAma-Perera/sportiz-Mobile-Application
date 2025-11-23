@@ -1,4 +1,3 @@
-// src/components/Header.tsx
 import React from 'react';
 import { View, Text, StyleSheet, StatusBar, Platform, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -41,7 +40,7 @@ export default function Header({ navigation }: HeaderProps) {
     return 'Good evening';
   };
 
-  // Theme-aware colors (typed as tuples for LinearGradient)
+  
   const gradientColors: readonly [string, string, string] = isDark
     ? [theme.background, theme.surface, theme.primary]
     : [theme.primary, theme.primaryLight, '#a5b4fc'];

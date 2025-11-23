@@ -1,4 +1,3 @@
-// src/constants/colors.ts
 const Light = {
   primary: '#6366f1',
   primaryLight: '#818cf8',

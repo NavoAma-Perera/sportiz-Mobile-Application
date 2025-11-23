@@ -1,4 +1,3 @@
-// src/features/favourites/favouritesSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Match, FavouritesState } from '../../types';
@@ -20,12 +19,12 @@ const favouritesSlice = createSlice({
       const existsIndex = state.items.findIndex((i) => i.id === item.id);
 
       if (existsIndex !== -1) {
-        state.items.splice(existsIndex, 1); // Remove
+        state.items.splice(existsIndex, 1); 
       } else {
-        state.items.push(item); // Add
+        state.items.push(item); 
       }
 
-      // Safe async save (fire and forget with error handling)
+      // Safe async save
       (async () => {
         try {
           await AsyncStorage.setItem(FAV_KEY, JSON.stringify(state.items));
@@ -36,7 +35,6 @@ const favouritesSlice = createSlice({
     },
 
     loadFavs(state, action: PayloadAction<Match[]>) {
-      // Payload is REQUIRED now
       state.items = action.payload;
     },
 

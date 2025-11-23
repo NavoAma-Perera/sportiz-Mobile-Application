@@ -1,4 +1,3 @@
-// src/components/details/OverviewTab.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
@@ -20,11 +19,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ item, theme, isDark })
     const loadData = async () => {
       setLoading(true);
       try {
-        // Fetch event details for venue info
+        // Fetch venue info
         const eventData = await fetchEventDetails(item.id);
         setEventDetails(eventData);
 
-        // Fetch league details if available
+        // Fetch league details 
         if (item.leagueId) {
           const league = await fetchLeagueDetails(item.leagueId);
           setLeagueInfo(league);
@@ -58,7 +57,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ item, theme, isDark })
           </Text>
         </View>
 
-        {/* Venue - only show if data exists */}
+        {/* Venue */}
         {venue && (
           <>
             <View style={[styles.verticalDivider, { backgroundColor: theme.border }]} />

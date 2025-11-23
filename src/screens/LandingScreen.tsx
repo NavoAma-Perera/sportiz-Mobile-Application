@@ -1,4 +1,3 @@
-// src/screens/LandingScreen.tsx
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';

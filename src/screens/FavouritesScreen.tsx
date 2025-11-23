@@ -1,4 +1,3 @@
-// src/screens/FavouritesScreen.tsx
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
@@ -22,7 +21,7 @@ export default function FavouritesScreen({ navigation }: FavouritesScreenProps) 
 
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Paginate favourites
+  // Pagination
   const paginatedFavs = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -31,7 +30,7 @@ export default function FavouritesScreen({ navigation }: FavouritesScreenProps) 
 
   const totalPages = Math.ceil(favs.length / ITEMS_PER_PAGE);
 
-  // Reset to page 1 if current page becomes invalid after removing items
+  // Reset to page 1 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);

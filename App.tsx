@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useEffect } from 'react';
 import { Provider, useDispatch } from 'react-redux';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,7 +13,6 @@ import type { AppDispatch } from './src/store';
 
 const Stack = createNativeStackNavigator();
 
-// Inner component that uses useDispatch
 function RootNavigator() {
   const dispatch = useDispatch<AppDispatch>();
 
