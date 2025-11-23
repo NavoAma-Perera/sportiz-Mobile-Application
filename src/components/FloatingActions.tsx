@@ -163,8 +163,8 @@ export const FloatingActions: React.FC<FloatingActionsProps> = ({
 const styles = StyleSheet.create({
   floatingIcons: {
     position: 'absolute',
-    top: 270,
-    right: 10,
+    top: 220,
+    right: 30,
     flexDirection: 'column',
     gap: 12,
     zIndex: 10,
