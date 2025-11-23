@@ -7,10 +7,13 @@ export interface Match {
   date: string;
   status: 'upcoming' | 'ongoing' | 'completed';
   image: string;
-  sport: 'Football' | 'Cricket' | 'Swimming';
+  sport: string;
   league?: string;
+  leagueId?: string;
+  teamAId?: string;
+  teamBId?: string;
 }
-// Updated User interface for Auth0
+
 export interface User {
   id: string;
   email: string;
@@ -19,15 +22,6 @@ export interface User {
   email_verified?: boolean;
   accessToken: string;
   refreshToken?: string;
-}
-
-export interface Match {
-  id: string;
-  teamA: string;
-  teamB: string;
-  date: string;
-  status: 'ongoing' | 'upcoming' | 'completed';
-  image: string;
 }
 
 export interface AuthState {

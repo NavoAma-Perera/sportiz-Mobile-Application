@@ -127,12 +127,12 @@ export default function Header({ navigation }: HeaderProps) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingBottom: 24,
+    paddingBottom: 14,
     overflow: 'hidden',
   },
   decorCircle1: {
     position: 'absolute',
-    top: -40,
+    top: -50,
     right: -40,
     width: 150,
     height: 150,
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    //marginBottom: 10,
   },
   leftSection: {
     flex: 1,
@@ -160,12 +160,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   greeting: {
-    fontSize: 14,
+    fontSize: 18,
     color: 'rgba(255,255,255,0.85)',
     fontWeight: '500',
   },
   wave: {
-    fontSize: 14,
+    fontSize: 18,
   },
   userName: {
     fontSize: 24,
@@ -179,13 +179,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatarBtn: {
-    borderRadius: 16,
+    borderRadius: 25,
     padding: 2,
   },
   avatar: {
     width: 44,
     height: 44,
-    borderRadius: 14,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -199,10 +199,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 16,
-    gap: 12,
+    gap: 10,
   },
   iconGradientBg: {
     width: 50,

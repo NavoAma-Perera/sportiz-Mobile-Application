@@ -1,4 +1,4 @@
-// src/api/api.ts
+
 const BASE_URL_V1 = 'https://www.thesportsdb.com/api/v1/json/3';
 
 export interface RawEvent {
@@ -17,7 +17,6 @@ export interface RawEvent {
 }
 
 export const getAllUpcomingEvents = async (): Promise<RawEvent[]> => {
-  // Using v1 API with multiple football leagues that are confirmed to work
   const endpoints = [
     '/eventsnextleague.php?id=4328', // English Premier League
     '/eventsnextleague.php?id=4329', // English Championship
@@ -43,4 +42,60 @@ export const getAllUpcomingEvents = async (): Promise<RawEvent[]> => {
   }
 
   return events;
+};
+
+// Fetch detailed event information (includes venue, etc.)
+export const fetchEventDetails = async (eventId: string) => {
+  try {
+    const res = await fetch(`${BASE_URL_V1}/lookupevent.php?id=${eventId}`);
+    const data = await res.json();
+    return data.events?.[0] || null;
+  } catch (err) {
+    console.log('Error fetching event details:', err);
+    return null;
+  }
+};
+
+export const fetchLeagueDetails = async (leagueId: string) => {
+  try {
+    const res = await fetch(`${BASE_URL_V1}/lookupleague.php?id=${leagueId}`);
+    const data = await res.json();
+    return data.leagues?.[0] || null;
+  } catch (err) {
+    console.log('Error fetching league details:', err);
+    return null;
+  }
+};
+
+export const fetchTeamDetails = async (teamId: string) => {
+  try {
+    const res = await fetch(`${BASE_URL_V1}/lookupteam.php?id=${teamId}`);
+    const data = await res.json();
+    return data.teams?.[0] || null;
+  } catch (err) {
+    console.log('Error fetching team details:', err);
+    return null;
+  }
+};
+
+export const fetchTeamPlayers = async (teamId: string) => {
+  try {
+    const res = await fetch(`${BASE_URL_V1}/lookup_all_players.php?id=${teamId}`);
+    const data = await res.json();
+    return data.player || [];
+  } catch (err) {
+    console.log('Error fetching team players:', err);
+    return [];
+  }
+};
+
+export const fetchEventStats = async (eventId: string) => {
+  try {
+    const res = await fetch(`${BASE_URL_V1}/eventstats.php?id=${eventId}`);
+    const data = await res.json();
+    return data.results || [];
+  } catch (err) {
+    console.log('Error fetching stats:', err);
+    return [];
+  }
 };
